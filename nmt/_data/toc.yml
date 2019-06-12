@@ -35,39 +35,16 @@
 - title: Background
   url: /00-background/01-background
   sections:
-  - title: Word embeddings
-    url: /placeholder
-  - title: RNNs
-    url: /placeholder
-    subsections:
-    - title: Elman RNN
-      url: /placeholder
-    - title: LSTMs
-      url: /placeholder
-    - title: GRUs
-      url: /placeholder
+  - title: Variational Auto Encoder
+    url: /00-background/02-variational-auto-encoder
+  - title: GANs
+    url: /00-background/03-GANs
 
 - title: Supervised MT
   url: /01-sup/01-beginning
-  sections:
-  - title: The First Model
-    url: /placeholder
-  - title: The Second Model
-    url: /placeholder
 
 - title: Semi Supervised MT
   url: /02-semisup/01-semisup
-  sections:
-  - title: The First Model
-    url: /placeholder
-  - title: The Second Model
-    url: /placeholder
-
 
 - title: Un-Supervised MT
   url: /03-unsup/01-unsupervised-nmt
-  sections:
-  - title: The First Model
-    url: /placeholder
-  - title: The Second Model
-    url: /placeholder

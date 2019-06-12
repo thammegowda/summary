@@ -22,8 +22,8 @@ email: tg@isi.edu
 description: >- # this means to ignore newlines until "baseurl:"
   Research Summaries
 
-baseurl: "/nmt" # the subpath of your site, e.g. /blog. If there is no subpath for your site, use an empty string ""
-url: "https://jupyter.org" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/summary/nmt" # the subpath of your site, e.g. /blog. If there is no subpath for your site, use an empty string ""
+url: "https://thammegowda.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 
 
 #######################################################################################
@@ -41,7 +41,7 @@ sidebar_footer_text       : 'Powered by <a href="https://github.com/jupyter/jupy
 number_toc_chapters       : true  # Whether to add numbers to chapterse in your Table of Contents. If true, you can control this at the Chapter level in _data/toc.yml
 
 # Search settings
-search_max_words_in_content : 100  # In the search function, use at most this many words (too many words will make search slow)
+search_max_words_in_content : 1000  # In the search function, use at most this many words (too many words will make search slow)
 
 #######################################################################################
 # Interact link settings
@@ -87,7 +87,7 @@ scholar:
 
 # Navigate to https://analytics.google.com, add a new property for your jupyter book and copy the tracking id here.
 google_analytics:
-  mytrackingcode:
+  mytrackingcode: UA-97010688-1
 
 #######################################################################################
 # Jupyter book settings you probably don't need to change
