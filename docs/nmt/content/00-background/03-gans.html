@@ -17,16 +17,16 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,minimum-scale=1">
 
-  <title>Background</title>
-  <meta name="description" content="Background">
+  <title>Generative Adversarial Networks(GANs)</title>
+  <meta name="description" content="Research Summaries">
 
-  <link rel="canonical" href="https://thammegowda.github.io/summary/nmt/00-background/01-background.html">
+  <link rel="canonical" href="https://thammegowda.github.io/summary/nmt/content/00-background/03-gans.html">
   <link rel="alternate" type="application/rss+xml" title="Research Summaries" href="https://thammegowda.github.io/summary/nmt/feed.xml">
 
-  <meta property="og:url"         content="https://thammegowda.github.io/summary/nmt/00-background/01-background.html" />
+  <meta property="og:url"         content="https://thammegowda.github.io/summary/nmt/content/00-background/03-gans.html" />
 <meta property="og:type"        content="article" />
-<meta property="og:title"       content="Background" />
-<meta property="og:description" content="Background" />
+<meta property="og:title"       content="Generative Adversarial Networks(GANs)" />
+<meta property="og:description" content="Research Summaries" />
 <meta property="og:image"       content="" />
 
 
@@ -35,15 +35,15 @@
   "@context": "http://schema.org",
   "@type": "NewsArticle",
   "mainEntityOfPage":
-    "https://thammegowda.github.io/summary/nmt/00-background/01-background.html",
+    "https://thammegowda.github.io/summary/nmt/content/00-background/03-gans.html",
   "headline":
-    "Background",
+    "Generative Adversarial Networks(GANs)",
   "datePublished":
     "2019-06-11T18:42:50-07:00",
   "dateModified":
     "2019-06-11T18:42:50-07:00",
   "description":
-    "Background",
+    "Research Summaries",
   "author": {
     "@type": "Person",
     "name": "Thamme Gowda"
@@ -773,7 +773,7 @@ initFunction(initQuery);
       
       
       <li class="c-sidebar__chapter">
-        <a class="c-sidebar__entry c-sidebar__entry--active"
+        <a class="c-sidebar__entry "
           href="/summary/nmt/00-background/01-background.html"
         >
           
@@ -816,7 +816,7 @@ initFunction(initQuery);
               
 
               <li class="c-sidebar__section">
-                <a class="c-sidebar__entry "
+                <a class="c-sidebar__entry c-sidebar__entry--active"
                   href="/summary/nmt/00-background/03-gans.html"
                 >
                   
@@ -936,53 +936,61 @@ initFunction(initQuery);
             
 
             <div class="c-textbook__content">
-              <h1 id="background">Background</h1>
+              <h1 id="generative-adversarial-networksgans">Generative Adversarial Networks(GANs)</h1>
 
-<p><strong>Auto Encoder</strong> learns representations by the technique of compression (aka dim reduction) folled by decompression.
-The compact representation is often called “code”.
-For an high demnsiomal data $X$, we define encoder as a parameterized function
-$Enc_\phi : X \rightarrow F$<br />
-Where $F$ is a compact representation in lower dimensions.
-Simultaneously, we pair this compressing function with a decompressing function to reconstruct the original data.<br />
-$Dec_\psi : F \rightarrow X$</p>
+<p>As we seen in the previous section, the Variation Auto Encoder made a strong assumption of latent space:</p>
+<ol>
+  <li>Latent space can be modelled as a random distribution</li>
+  <li>That random distribution is a multivariate gaussian with zero mean and unit variance.</li>
+</ol>
 
-<p>Usually, these compressor and decompressors are lossy. Ideally we want the reconstruction to as close as possible to input (thats the learning objective of learning the parameters $\phi$ and $\psi$). The objective here is to minimize the reconstruction error, which can be expressed as $\Vert X − Dec_\psi(Enc_\phi(X))\Vert^2$.</p>
+<p>The role of an encoder in the variational autoencoder is to convert any input $x$ into some point in the space of $\mathcal{N}(0, I)$. In other words, if we have a sample set of examples (images, text), each of them can be deterministically mapped (using an encoder) to a point in the space $\mathcal{N}(0, I)$.
+We have one unique point for each example in our finite dataset.
+However, there are inifinite number of points in $\mathcal{N}(0, I)$, there fore we could in theory generate infinite number of examples using the $Dec\psi(z)$ where $z$ is a sample from $\mathcal{N}(0, I)$.</p>
 
-<p>However, this is still very abstract - we dont know how input $X$ is, how many parameters in $\phi$ and $\psi$, and how to set them. Usually, they are all depends on the input $X$.</p>
+<p>Since the desired output space of the encoder is known/assumed to be $\mathcal{N}(0, I)$, and we do know how to generate a random point from that space, then why do we need an encoder? Especially if we are just interested in generation from this known latent space, we can take out the encoder, since all we need is a decoder to convert noise to an example.
+In this model-without-Encoder, let us call the <code class="highlighter-rouge">Decoder</code> as <code class="highlighter-rouge">Generator</code> since it is more meaningful name (and thats what the authors called it).</p>
 
-<p>We want to approximate these parameterized functions (i.e. approximate parameters  $\phi$ and $\psi$).
-We define an optimizer that can directly adjust these parameters by utilizing a set of samples (training data). The chosen dataset, and the chosen optimization algorithm can have a noticable effect (or bias) in the estimation of parameters, which inturn affects the end objective. Another implicit objective is to be generic enough, i.e. if given another set of samples (test set), the parameters should still behave as desired.
-From the theoretical point of view, this is maximum likelihood estimation (MLE) over a set of samples. In simple words, its the task of finding maximum-likelihood (i.e. most likely) values of $\phi$ and $\psi$ on a give set of samples (training set) while also keeping the estimation generic enough to be used on other unseen samples (test set).
-In summary, we have two objectives:</p>
+<p>To begin with, we obtain some random samples from $\mathcal{N}(0,I)$ (call it $noise$) and pass it to the Decoder aka Generator. The generator would always generate something irrespective of what we provide as input. But the real challenge here is making the generator generate only useful outputs. Since there is no encoder in this model, we dont know which specific example was mapped to the noise, so we are unable to measure reconstruction loss. Most of the time it is not even reconstruction, it is a novel/never-before-seen construction. This model needs a clever way to force the generator produce only useful outputs.</p>
 
-<ul>
-  <li><strong>Objective 1:</strong> Better reconstruction i.e. $Dec_\psi(Enc_\phi(X))$ should be very similar to input $X$</li>
-  <li><strong>Objective 2:</strong> Better generalization: This method should also work on unseen samples.</li>
-</ul>
+<p><a href="#goodfellow2014GAN">(Goodfellow et al., 2014)</a> had a clever and interesting idea which is now commonly referred as <em>adversarial training</em>.</p>
 
-<p>Deep learning / Neural networks are one way of accomplishing these defined objectives. So $Enc_\phi$ and $Dec_\psi$ are two neural networks. The nice thing about networks is that we can connect two or more of them to form a bigger network. So Autoencoder in our context is a big network which has two sub networks - encoder and decoder.</p>
+<blockquote>
+  <p>I see an interesting connection to algorithms complexity theory: Suppose if we have a blackbox to efficiently decide a given solution is correct or wrong (i.e. NP aka Non-deterministic Polynomial), searching a correct solution of a NP (hard) problem can be done efficiently using this deciding blackbox. Here, if we can have a blackbox to decide the generated output as Good or Bad, we can use it to search the good parameters of Generator.</p>
+</blockquote>
 
-<p>Lets take images as our input, since they are simpler and visually inspectable. They can be resized to have fixed number of dimensions without losing much of information (after all, we are in the context of lossy compressions and approximations of those lossy compressions). The reason for chosing images over linguistic structures (scuh as sentences) is that - unlike images sentences cannot be easily resized to have fixed dimensions, and they have temporal property - so more complicated!</p>
+<p>The module that can signal whether a generated output is good or bad is called <em>Descriminator</em>. Since there are no readily available descriminator, it needs to be learned too. The Descriminator can also be treated as a parameterized function, and learn its parameters.
+Since we are implementing parameterized functions as neural networks, we can connect Decoder aka Generator to Descriminator to form a bigger network and optimize both of them as one end objective. There is more detail involved to the optimization technique, it is more interesting than it looks at surface.</p>
 
-<p>In the computer vision we use a kind of networks called convolusion neural networks (with some more fancier additions) to approximate $Enc_\phi$ and $Dec_\psi$.
-Experimental evidance has shown that this kind of Encoding and Decoding easily satisfies Reconstruction objectives, however fails to satisfy generalization objective.</p>
+<p>Walk through for how the generator-descriminator network can be adversarially optimized</p>
+<blockquote>
+  <p>the authors called generator as $g_\theta$, to be consistent with previous notes on VAEs, $g_\theta = Gen_\psi = Dec_\psi$.</p>
+</blockquote>
 
-<p><strong>Denoising Auto Encoder</strong>
-In this setup, the input $X$ is intentionally corrupted. The task of encoder is to reconstruct the clean input from noisy input. This task is some what challenging than the vanilla task, so forces the models to learn better representations.</p>
+<ol>
+  <li>The assumed latent space $\mathcal{N}(0, I)$</li>
+  <li>Sample a radom point from the latent space, say $s$. There is an example  corresponding to this $s$. The generator can generate it.
+    <ul>
+      <li>the sample space $\mathcal{N}(0, I)$ has infinite samples. Even if we obtain a very large finite set of known examples the probability of $s$ corresponding to a known example in the set is negligible. That is okay, since we are not after exact reconstruction loss</li>
+    </ul>
+  </li>
+  <li>Generator: $\tilde{z} = Gen_\psi(s)$ Here $\tilde{z}$ is a generated example</li>
+  <li>Descriminator:  $r=Desc_w(\tilde{z})$ . The range of $r=[0, 1]$ Where 0 mean bad/useless/fake and 1 means good/useful/real.</li>
+  <li>Simultaneously train the $Gen_\psi$ and $Desc_w$. To simultaneously optimize all the parameters, we will need a set of realistic examples.</li>
+  <li>Notation: Let $z$ be the real example read from training set (whose space is $P_*$), and $\tilde{z}= Gen_\psi(s)$  with space $P_{\tilde{z}}$</li>
+  <li>A well trained Descriminator should have $Desc_w(z)$ to be close to 1 (since they are real), and $Desc_w(\tilde{z})$ should be close to $0$ since are generated (or fake)</li>
+  <li>To get to the well trained Descriminator, maximimize $E_{z \sim P_*} \space [ Desc_w(z) ] - E_{\tilde{z} \sim P_z} \space [ Desc_w(\tilde{z}) ]$</li>
+  <li>Meanwhile the Generator’s task is to get better at making the descriminator’s task harder. Therefore, the objective for Generator is to do exactly opposite of Descriminator (a true adversary), which is to minimize $E_{z \sim P_*} \space [ Desc_w(z) ] - E_{\tilde{z} \sim P_z} \space [ Desc_w(\tilde{z}) ]$</li>
+  <li>Min-max optimization.</li>
+</ol>
+
+<blockquote>
+  <p>TODO: this is incomplete. Read Min-max optimization</p>
+</blockquote>
 
               <nav class="c-page__nav">
   
-    
-    <a id="js-page__nav__prev" class="c-page__nav__prev" href="https://github.com/thammegowda/summary">
-      〈 <span class="u-margin-right-tiny"></span> GitHub repository
-    </a>
-  
 
-  
-    
-    <a id="js-page__nav__next" class="c-page__nav__next" href="/summary/nmt/00-background/02-variational-auto-encoder">
-      Variational Auto Encoder <span class="u-margin-right-tiny"></span> 〉
-    </a>
   
 </nav>
 

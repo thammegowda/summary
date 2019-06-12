@@ -17,16 +17,16 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,minimum-scale=1">
 
-  <title>Background</title>
-  <meta name="description" content="Background">
+  <title>Beginning: Things that lead to NMT</title>
+  <meta name="description" content="Research Summaries">
 
-  <link rel="canonical" href="https://thammegowda.github.io/summary/nmt/00-background/01-background.html">
+  <link rel="canonical" href="https://thammegowda.github.io/summary/nmt/content/01-sup/01-beginning.html">
   <link rel="alternate" type="application/rss+xml" title="Research Summaries" href="https://thammegowda.github.io/summary/nmt/feed.xml">
 
-  <meta property="og:url"         content="https://thammegowda.github.io/summary/nmt/00-background/01-background.html" />
+  <meta property="og:url"         content="https://thammegowda.github.io/summary/nmt/content/01-sup/01-beginning.html" />
 <meta property="og:type"        content="article" />
-<meta property="og:title"       content="Background" />
-<meta property="og:description" content="Background" />
+<meta property="og:title"       content="Beginning: Things that lead to NMT" />
+<meta property="og:description" content="Research Summaries" />
 <meta property="og:image"       content="" />
 
 
@@ -35,15 +35,15 @@
   "@context": "http://schema.org",
   "@type": "NewsArticle",
   "mainEntityOfPage":
-    "https://thammegowda.github.io/summary/nmt/00-background/01-background.html",
+    "https://thammegowda.github.io/summary/nmt/content/01-sup/01-beginning.html",
   "headline":
-    "Background",
+    "Beginning: Things that lead to NMT",
   "datePublished":
     "2019-06-11T18:42:50-07:00",
   "dateModified":
     "2019-06-11T18:42:50-07:00",
   "description":
-    "Background",
+    "Research Summaries",
   "author": {
     "@type": "Person",
     "name": "Thamme Gowda"
@@ -773,7 +773,7 @@ initFunction(initQuery);
       
       
       <li class="c-sidebar__chapter">
-        <a class="c-sidebar__entry c-sidebar__entry--active"
+        <a class="c-sidebar__entry "
           href="/summary/nmt/00-background/01-background.html"
         >
           
@@ -791,7 +791,7 @@ initFunction(initQuery);
 
           
 
-          <ul class="c-sidebar__sections ">
+          <ul class="c-sidebar__sections u-hidden-visually">
             
               
               
@@ -846,7 +846,7 @@ initFunction(initQuery);
       
       
       <li class="c-sidebar__chapter">
-        <a class="c-sidebar__entry "
+        <a class="c-sidebar__entry c-sidebar__entry--active"
           href="/summary/nmt/01-sup/01-beginning.html"
         >
           
@@ -936,53 +936,22 @@ initFunction(initQuery);
             
 
             <div class="c-textbook__content">
-              <h1 id="background">Background</h1>
+              <h1 id="beginning-things-that-lead-to-nmt">Beginning: Things that lead to NMT</h1>
+<p>====================</p>
 
-<p><strong>Auto Encoder</strong> learns representations by the technique of compression (aka dim reduction) folled by decompression.
-The compact representation is often called “code”.
-For an high demnsiomal data $X$, we define encoder as a parameterized function
-$Enc_\phi : X \rightarrow F$<br />
-Where $F$ is a compact representation in lower dimensions.
-Simultaneously, we pair this compressing function with a decompressing function to reconstruct the original data.<br />
-$Dec_\psi : F \rightarrow X$</p>
-
-<p>Usually, these compressor and decompressors are lossy. Ideally we want the reconstruction to as close as possible to input (thats the learning objective of learning the parameters $\phi$ and $\psi$). The objective here is to minimize the reconstruction error, which can be expressed as $\Vert X − Dec_\psi(Enc_\phi(X))\Vert^2$.</p>
-
-<p>However, this is still very abstract - we dont know how input $X$ is, how many parameters in $\phi$ and $\psi$, and how to set them. Usually, they are all depends on the input $X$.</p>
-
-<p>We want to approximate these parameterized functions (i.e. approximate parameters  $\phi$ and $\psi$).
-We define an optimizer that can directly adjust these parameters by utilizing a set of samples (training data). The chosen dataset, and the chosen optimization algorithm can have a noticable effect (or bias) in the estimation of parameters, which inturn affects the end objective. Another implicit objective is to be generic enough, i.e. if given another set of samples (test set), the parameters should still behave as desired.
-From the theoretical point of view, this is maximum likelihood estimation (MLE) over a set of samples. In simple words, its the task of finding maximum-likelihood (i.e. most likely) values of $\phi$ and $\psi$ on a give set of samples (training set) while also keeping the estimation generic enough to be used on other unseen samples (test set).
-In summary, we have two objectives:</p>
-
-<ul>
-  <li><strong>Objective 1:</strong> Better reconstruction i.e. $Dec_\psi(Enc_\phi(X))$ should be very similar to input $X$</li>
-  <li><strong>Objective 2:</strong> Better generalization: This method should also work on unseen samples.</li>
-</ul>
-
-<p>Deep learning / Neural networks are one way of accomplishing these defined objectives. So $Enc_\phi$ and $Dec_\psi$ are two neural networks. The nice thing about networks is that we can connect two or more of them to form a bigger network. So Autoencoder in our context is a big network which has two sub networks - encoder and decoder.</p>
-
-<p>Lets take images as our input, since they are simpler and visually inspectable. They can be resized to have fixed number of dimensions without losing much of information (after all, we are in the context of lossy compressions and approximations of those lossy compressions). The reason for chosing images over linguistic structures (scuh as sentences) is that - unlike images sentences cannot be easily resized to have fixed dimensions, and they have temporal property - so more complicated!</p>
-
-<p>In the computer vision we use a kind of networks called convolusion neural networks (with some more fancier additions) to approximate $Enc_\phi$ and $Dec_\psi$.
-Experimental evidance has shown that this kind of Encoding and Decoding easily satisfies Reconstruction objectives, however fails to satisfy generalization objective.</p>
-
-<p><strong>Denoising Auto Encoder</strong>
-In this setup, the input $X$ is intentionally corrupted. The task of encoder is to reconstruct the clean input from noisy input. This task is some what challenging than the vanilla task, so forces the models to learn better representations.</p>
+<h1 id="nmt-models">NMT Models</h1>
+<ol>
+  <li>LSTM seq2seq</li>
+  <li>LSTM  seq2seq with attention</li>
+  <li>More attention types</li>
+  <li>GRUs</li>
+  <li>CNNs</li>
+  <li>Transformer</li>
+</ol>
 
               <nav class="c-page__nav">
   
-    
-    <a id="js-page__nav__prev" class="c-page__nav__prev" href="https://github.com/thammegowda/summary">
-      〈 <span class="u-margin-right-tiny"></span> GitHub repository
-    </a>
-  
 
-  
-    
-    <a id="js-page__nav__next" class="c-page__nav__next" href="/summary/nmt/00-background/02-variational-auto-encoder">
-      Variational Auto Encoder <span class="u-margin-right-tiny"></span> 〉
-    </a>
   
 </nav>
 

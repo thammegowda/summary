@@ -17,16 +17,16 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,minimum-scale=1">
 
-  <title>Background</title>
-  <meta name="description" content="Background">
+  <title>Un Supervised NMT</title>
+  <meta name="description" content="Research Summaries">
 
-  <link rel="canonical" href="https://thammegowda.github.io/summary/nmt/00-background/01-background.html">
+  <link rel="canonical" href="https://thammegowda.github.io/summary/nmt/content/03-unsup/01-unsupervised-nmt.html">
   <link rel="alternate" type="application/rss+xml" title="Research Summaries" href="https://thammegowda.github.io/summary/nmt/feed.xml">
 
-  <meta property="og:url"         content="https://thammegowda.github.io/summary/nmt/00-background/01-background.html" />
+  <meta property="og:url"         content="https://thammegowda.github.io/summary/nmt/content/03-unsup/01-unsupervised-nmt.html" />
 <meta property="og:type"        content="article" />
-<meta property="og:title"       content="Background" />
-<meta property="og:description" content="Background" />
+<meta property="og:title"       content="Un Supervised NMT" />
+<meta property="og:description" content="Research Summaries" />
 <meta property="og:image"       content="" />
 
 
@@ -35,15 +35,15 @@
   "@context": "http://schema.org",
   "@type": "NewsArticle",
   "mainEntityOfPage":
-    "https://thammegowda.github.io/summary/nmt/00-background/01-background.html",
+    "https://thammegowda.github.io/summary/nmt/content/03-unsup/01-unsupervised-nmt.html",
   "headline":
-    "Background",
+    "Un Supervised NMT",
   "datePublished":
     "2019-06-11T18:42:50-07:00",
   "dateModified":
     "2019-06-11T18:42:50-07:00",
   "description":
-    "Background",
+    "Research Summaries",
   "author": {
     "@type": "Person",
     "name": "Thamme Gowda"
@@ -773,7 +773,7 @@ initFunction(initQuery);
       
       
       <li class="c-sidebar__chapter">
-        <a class="c-sidebar__entry c-sidebar__entry--active"
+        <a class="c-sidebar__entry "
           href="/summary/nmt/00-background/01-background.html"
         >
           
@@ -791,7 +791,7 @@ initFunction(initQuery);
 
           
 
-          <ul class="c-sidebar__sections ">
+          <ul class="c-sidebar__sections u-hidden-visually">
             
               
               
@@ -892,7 +892,7 @@ initFunction(initQuery);
       
       
       <li class="c-sidebar__chapter">
-        <a class="c-sidebar__entry "
+        <a class="c-sidebar__entry c-sidebar__entry--active"
           href="/summary/nmt/03-unsup/01-unsupervised-nmt.html"
         >
           
@@ -936,53 +936,155 @@ initFunction(initQuery);
             
 
             <div class="c-textbook__content">
-              <h1 id="background">Background</h1>
+              <h1 id="un-supervised-nmt">Un Supervised NMT</h1>
 
-<p><strong>Auto Encoder</strong> learns representations by the technique of compression (aka dim reduction) folled by decompression.
-The compact representation is often called “code”.
-For an high demnsiomal data $X$, we define encoder as a parameterized function
-$Enc_\phi : X \rightarrow F$<br />
-Where $F$ is a compact representation in lower dimensions.
-Simultaneously, we pair this compressing function with a decompressing function to reconstruct the original data.<br />
-$Dec_\psi : F \rightarrow X$</p>
+<p>Training NMT models without using a single parallel data sounds like a daunting challenge at first - how is it even possible?
+There has been surprising amount of progress made on this challenge recently (2017-2019).
+There were efforts to train Statistical MT systems without using bitext, notably the paper titled <a href="https://www.aclweb.org/anthology/P11-1002">Deciphering foreign language</a> <a href="#ravi2011deciphering">(Ravi &amp; Knight, 2011)</a>.
+When it comes to NMT, we see a natural progression of the task: first, learn word translations without any data, followed by a way to take advanatge of them for to sentence translations.</p>
 
-<p>Usually, these compressor and decompressors are lossy. Ideally we want the reconstruction to as close as possible to input (thats the learning objective of learning the parameters $\phi$ and $\psi$). The objective here is to minimize the reconstruction error, which can be expressed as $\Vert X − Dec_\psi(Enc_\phi(X))\Vert^2$.</p>
+<p>Unsupervised Word alignments, done in embedding space, is generally a two step process:</p>
+<ol>
+  <li>Learn monolingual embeddings seperately</li>
+  <li>Learn the transformation function mapping one space to another.</li>
+</ol>
 
-<p>However, this is still very abstract - we dont know how input $X$ is, how many parameters in $\phi$ and $\psi$, and how to set them. Usually, they are all depends on the input $X$.</p>
+<p>There are plenty of ways to learn word embeddings: Word2vec, Fasttext, Glove, etc Each have their own advantages (and some drawbacks). The task is straight forward application of distributional hypothesis on monolingual data.
+The second step, learning transformation function for mapping one to another is some what interesting for translation community.</p>
 
-<p>We want to approximate these parameterized functions (i.e. approximate parameters  $\phi$ and $\psi$).
-We define an optimizer that can directly adjust these parameters by utilizing a set of samples (training data). The chosen dataset, and the chosen optimization algorithm can have a noticable effect (or bias) in the estimation of parameters, which inturn affects the end objective. Another implicit objective is to be generic enough, i.e. if given another set of samples (test set), the parameters should still behave as desired.
-From the theoretical point of view, this is maximum likelihood estimation (MLE) over a set of samples. In simple words, its the task of finding maximum-likelihood (i.e. most likely) values of $\phi$ and $\psi$ on a give set of samples (training set) while also keeping the estimation generic enough to be used on other unseen samples (test set).
-In summary, we have two objectives:</p>
+<p>Progression of learning word embedding alignments:</p>
+<ol>
+  <li>Using a dictionary of word translations to learn the transformation matrix. <a href="https://arxiv.org/pdf/1309.4168.pdf">Exploiting Similarities among Languages for Machine Translation</a> <a href="#mikolov2013exploiting">(Mikolov, Le, &amp; Sutskever, 2013)</a></li>
+  <li>Much smaller dictionaries: as small as 25 pairs. In many cases those pairs can be automatically obtained, eg: numbers, names etc. See <a href="https://www.aclweb.org/anthology/P17-1042">Learning bilingual word embeddings with (almost) no bilingual data</a> <a href="#artetxe2017binlingemb">(Artetxe, Labaka, &amp; Agirre, 2017)</a></li>
+  <li>More fancier techniques for learning word alignments: Use adversarial training. See <a href="https://arxiv.org/pdf/1710.04087.pdf">Word translation without parallel data</a> <a href="#conneau2017word">(Conneau, Lample, Ranzato, Denoyer, &amp; Jégou, 2017)</a> .</li>
+</ol>
+
+<p>The implementation of <a href="#conneau2017word">(Conneau, Lample, Ranzato, Denoyer, &amp; Jégou, 2017)</a> ‘s approch is made available on github as <a href="https://github.com/facebookresearch/MUSE">facebookresearch/MUSE</a> and it is more popular. These unsupervised approaches can sometimes perform better than supervised approach. Here is a visual interepretation of embedding alignment (taken from their github repo): <img src="https://github.com/facebookresearch/MUSE/raw/master/outline_all.png" alt="" /></p>
+
+<p>In summary, unsupervised word alignments exploited these two phenomenons:</p>
+<ol>
+  <li>Words having similar meaning appear in similar context across languages</li>
+  <li>There is a linear mapping from one embedding vector space to another which can be easily learned</li>
+</ol>
+
+<p>Once we had these automatically aligned word embeddings of good enough quality, the next problem to tackle was: “how to do sentence translation without parallel data?”</p>
+
+<h3 id="1-unsupervised-neural-machine-translation-artetxe-labaka-agirre--cho-2017">1. <a href="https://arxiv.org/pdf/1710.11041.pdf">Unsupervised neural machine translation</a> <a href="#artetxe2017unsupervised">(Artetxe, Labaka, Agirre, &amp; Cho, 2017)</a></h3>
 
 <ul>
-  <li><strong>Objective 1:</strong> Better reconstruction i.e. $Dec_\psi(Enc_\phi(X))$ should be very similar to input $X$</li>
-  <li><strong>Objective 2:</strong> Better generalization: This method should also work on unseen samples.</li>
+  <li>Crosslingual embeddings: Skipgram word2vec, 10 neg sample, 10 ctx window, 300 dims. Then aligned using <a href="#artetxe2017binlingemb">(Artetxe, Labaka, &amp; Agirre, 2017)</a></li>
+  <li>NMT Architecture: 2 layer Bi-GRU encoder, 2 layers GRU dec, 600 hid dim, 300 dim embs, general attention
+    <ul>
+      <li>Both directions: Source -&gt; Target and Target -&gt; Source</li>
+      <li>Shared encoder for both source and target, decoders are seperate. Encoder embeddings are fixed. Decoders are let to evolve.</li>
+      <li>Vocabularies are separate for both languages. So embedding matrices are seperate (but aligned)</li>
+    </ul>
+  </li>
+  <li>Denoising: for a seq of $N$ toks, $N/2$ swaps are performed as nimitation of oise. Without noise, copy task is too trivial, AEs doesnt learn any useful representation.</li>
+  <li>On-the-fly back translation: they use the model to generate translation (in the inference mode with greedy dec) then reconstruct from the translation. Backtranslation is much noisier form than random word swaps.</li>
+  <li>Switch the training steps: between Denoise L1 to L1; Denoise L2 to L2; Cycle via BackTranslation: L1 -&gt; L2 -&gt; L1; Cycle via BackTranslation: L2 -&gt; L1 -&gt; L2.</li>
+  <li>Trained on short seqs: 50 or fewer toks (after BPE)</li>
+  <li>Crosslingual embeddings:</li>
+  <li>Took 4-5 days to train. Results on WMT: Fr-en 15.6; De-en 10.2</li>
 </ul>
 
-<p>Deep learning / Neural networks are one way of accomplishing these defined objectives. So $Enc_\phi$ and $Dec_\psi$ are two neural networks. The nice thing about networks is that we can connect two or more of them to form a bigger network. So Autoencoder in our context is a big network which has two sub networks - encoder and decoder.</p>
+<h3 id="2-unsupervised-machine-translation-using-monolingual-corpora-only-lample-conneau-denoyer--ranzato-2017">2. <a href="https://arxiv.org/pdf/1711.00043.pdf">Unsupervised machine translation using monolingual corpora only</a> <a href="#lample2017unsupervised">(Lample, Conneau, Denoyer, &amp; Ranzato, 2017)</a></h3>
 
-<p>Lets take images as our input, since they are simpler and visually inspectable. They can be resized to have fixed number of dimensions without losing much of information (after all, we are in the context of lossy compressions and approximations of those lossy compressions). The reason for chosing images over linguistic structures (scuh as sentences) is that - unlike images sentences cannot be easily resized to have fixed dimensions, and they have temporal property - so more complicated!</p>
+<ul>
+  <li>Cross lingual embeddings from <a href="#conneau2017word">(Conneau, Lample, Ranzato, Denoyer, &amp; Jégou, 2017)</a> i.e. MUSE.</li>
+  <li>Learn to reconstruct in both langs from the shared latent space</li>
+  <li>Denoising auto encoder, reconstruct from a noisy input</li>
+  <li>
+    <p>(This paper has good citations to relevant work; semi supervised, autoencoder etc)</p>
+  </li>
+  <li>LSTM with 300 dims, 3 layers. Two models: Src-to-tgt and tgt-to-src models: all encoder layers are shared, all decoder layers are shared. So only generator matrix is different for both the languages. They actually have two models, LSTM layers are shared.</li>
+  <li>Denoising auto encoders: drop words, shuffle the order of tokens (upper bound k on how many timesteps max a token can move). They found 10% word drop and k=3 be good parameters</li>
+  <li>Cross-domain loss (aka cycle loss) x -&gt; C(x) -&gt; y -&gt; C(y) -&gt; x’.     C is corruption operator. Similarly, y -&gt; C(y) -&gt; x -&gt; C(x) -&gt; y’.</li>
+  <li>Adversarial training: Encoding of x and y sentences should be indistinguishable</li>
+  <li>Final objective is: is linear combination of following
+    <ul>
+      <li>AE src-&gt;src</li>
+      <li>AE tgt-&gt;tgt</li>
+      <li>CycleLoss src-&gt;tgt-&gt;src</li>
+      <li>CycleLoss tgt-&gt;src-&gt;src</li>
+      <li>Adversarial Loss</li>
+    </ul>
+  </li>
+  <li>Results On WMT fr-en 14.3 while supervised is 26.1; de-en is 13.3 while supervvised is 25.6</li>
+</ul>
 
-<p>In the computer vision we use a kind of networks called convolusion neural networks (with some more fancier additions) to approximate $Enc_\phi$ and $Dec_\psi$.
-Experimental evidance has shown that this kind of Encoding and Decoding easily satisfies Reconstruction objectives, however fails to satisfy generalization objective.</p>
+<h3 id="3-unsupervised-neural-machine-translation-with-weight-sharing-yang-chen-wang--xu-2018">3. <a href="https://arxiv.org/pdf/1804.09057.pdf">Unsupervised neural machine translation with weight sharing</a> <a href="#yang2018unsupervised">(Yang, Chen, Wang, &amp; Xu, 2018)</a></h3>
 
-<p><strong>Denoising Auto Encoder</strong>
-In this setup, the input $X$ is intentionally corrupted. The task of encoder is to reconstruct the clean input from noisy input. This task is some what challenging than the vanilla task, so forces the models to learn better representations.</p>
+<ul>
+  <li>Artetxe et al 2017 use a shared encoder; but seperate decoders. Lample et al 2017 share a single encoder and single decoder (fully shared).</li>
+  <li>Conjecture: Fully shared is not  good, since languages have different syntax; completely different is also not good, since forcing common latent space is hard. We want to something in the middle: partial sharing.</li>
+  <li>Encoder: share the higher layers; allow the lower layers (close to embeddings) to be different</li>
+  <li>Decoder share the lower layers; allow the higher layers (close to generator module) to be different
+    <ul>
+      <li>Question: Decoder too has input embedding too just like encoder, but they are okay shared? Maybe: since word embeddings are in common latent space</li>
+    </ul>
+  </li>
+  <li>Two kinds of adversarial discriminators are built in:
+    <ul>
+      <li>Prior work (Yang et all 2017, same first author): “Improving Neural Machine Translation with Conditional Sequence Generative Adversarial Nets”</li>
+      <li>Loss is modified to include regular loss + GAN reward</li>
+      <li>Two Discriminators: Local (encoded repr of source &amp; target are indistinguishable), Global (model generated sentences are indistinguishable from human generated sentences)</li>
+    </ul>
+  </li>
+  <li>Slight improvement in BLEU (+1.0) compared to Lample et al 2017</li>
+</ul>
+
+<h3 id="4-phrase-based--neural-unsupervised-machine-translationlample-ott-conneau-denoyer--ranzato-2018">4. <a href="https://www.aclweb.org/anthology/D18-1549">Phrase-Based &amp; Neural Unsupervised Machine Translation</a><a href="#lample2018unsup-mt">(Lample, Ott, Conneau, Denoyer, &amp; Ranzato, 2018)</a></h3>
+
+<ul>
+  <li>Simplification from lample et al 2017 and Artetxe et al 2017. In essence these three work for unsupervised MT (ablation study proved it):
+    <ul>
+      <li>Initialization of embeddings via crosslingual embeddings</li>
+      <li>strong language models via denoising autoencoder</li>
+      <li>automatic backtranslation</li>
+    </ul>
+  </li>
+  <li>They train NMT and PBSMT (moses). Source code at <a href="https://github.com/facebookresearch/UnsupervisedMT">facebookresearch/UnsupervisedMT</a></li>
+  <li>NMT training
+    <ul>
+      <li>two varieties: LSTM (told that the setup is same as Artetxe et al 2017 but they had used GRUs!), Transformer (4 layers); 512 dim.</li>
+      <li>Shared Encoder, forced interlingua using adversarial loss. Shared Decoder too for regularization</li>
+      <li>BOS (first token) of the shared decoder is the language id token. Encoder’s first token is not modified unlike Johnson et al 2016.</li>
+      <li>Loss is Denoising reconstruction + backtranslation loss ; Note: No adversarial loss ? Maybe bcoz the encoder is shared, no need to explicitly force it to learn interlingua</li>
+    </ul>
+  </li>
+  <li>NOTE: authors never explicitly mentioned that the weights of 3 out of 4 layers were shared as suggested by Yang et al 2018 (see above). However in the code it is done. Code didn’t run our cluster and authors said to use XLM instead which is much better (see below) (Lample &amp; Artetxe, 2019)</li>
+  <li>Validation and model selection via roundtrip BLEU ( x -&gt; y -&gt; x;  y-&gt; x-&gt;y).</li>
+  <li>Note: Roundtrip BLEU correlates well for transformer but not for LSTMs, nobody knows why! They used a small validation set of 100 parallel sentences for LSTMs validation</li>
+</ul>
+
+<h3 id="cross-lingual-language-model-pretraining-lample--conneau-2019"><a href="https://arxiv.org/pdf/1901.07291.pdf">Cross-lingual Language Model Pretraining</a> <a href="#DBLP:journals/corr/abs-1901-07291">(Lample &amp; Conneau, 2019)</a></h3>
+<ul>
+  <li>Code is made available on gitub at <a href="https://github.com/facebookresearch/XLM">facebookresearch/XLM</a> . (Very well written!)</li>
+  <li>Improvements over lample et al 2018; better initialization</li>
+  <li>Instead of  initializing (just) embeddings they train auto encoders with different objectives: causal LM (predict next token given left context); masked LM predict some masked token in sequence given both left and right context</li>
+  <li>If you have parallel data, you can do Translation LM; concat src + tgt sequence, mask out some sequences on both source and target! Nice!! (we should try this way of training transformer model)</li>
+  <li>Mix all the languages; adjust sampling to balance low and high resources</li>
+  <li>Denoising AE and online backtranslation are still the key</li>
+  <li>High BLEU scores comparable with supervised MT (going to try this)</li>
+  <li>Computationally expensive: Language models are way expensive (they needed 64 top of the class GPUs), MT finetuning is relatively inexpensive however still expensive (they needed 8 GPUs)</li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<ol class="bibliography"><li><span id="ravi2011deciphering">Ravi, S., &amp; Knight, K. (2011). Deciphering foreign language. In <i>Proceedings of the 49th Annual Meeting of the Association for Computational Linguistics: Human Language Technologies</i> (pp. 12–21).</span></li>
+<li><span id="mikolov2013exploiting">Mikolov, T., Le, Q. V., &amp; Sutskever, I. (2013). Exploiting similarities among languages for machine translation. <i>ArXiv Preprint ArXiv:1309.4168</i>.</span></li>
+<li><span id="artetxe2017binlingemb">Artetxe, M., Labaka, G., &amp; Agirre, E. (2017). Learning bilingual word embeddings with (almost) no bilingual data. In <i>Proceedings of the 55th Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)</i> (pp. 451–462).</span></li>
+<li><span id="conneau2017word">Conneau, A., Lample, G., Ranzato, M. A., Denoyer, L., &amp; Jégou, H. (2017). Word translation without parallel data. <i>ArXiv Preprint ArXiv:1710.04087</i>.</span></li>
+<li><span id="artetxe2017unsupervised">Artetxe, M., Labaka, G., Agirre, E., &amp; Cho, K. (2017). Unsupervised neural machine translation. <i>ArXiv Preprint ArXiv:1710.11041</i>.</span></li>
+<li><span id="lample2017unsupervised">Lample, G., Conneau, A., Denoyer, L., &amp; Ranzato, M. A. (2017). Unsupervised machine translation using monolingual corpora only. <i>ArXiv Preprint ArXiv:1711.00043</i>.</span></li>
+<li><span id="yang2018unsupervised">Yang, Z., Chen, W., Wang, F., &amp; Xu, B. (2018). Unsupervised neural machine translation with weight sharing. <i>ArXiv Preprint ArXiv:1804.09057</i>.</span></li>
+<li><span id="lample2018unsup-mt">Lample, G., Ott, M., Conneau, A., Denoyer, L., &amp; Ranzato, M. A. (2018). Phrase-based &amp; neural unsupervised machine translation. <i>ArXiv Preprint ArXiv:1804.07755</i>.</span></li>
+<li><span id="DBLP:journals/corr/abs-1901-07291">Lample, G., &amp; Conneau, A. (2019). Cross-lingual Language Model Pretraining. <i>CoRR</i>, <i>abs/1901.07291</i>. Retrieved from http://arxiv.org/abs/1901.07291</span></li></ol>
 
               <nav class="c-page__nav">
   
-    
-    <a id="js-page__nav__prev" class="c-page__nav__prev" href="https://github.com/thammegowda/summary">
-      〈 <span class="u-margin-right-tiny"></span> GitHub repository
-    </a>
-  
 
-  
-    
-    <a id="js-page__nav__next" class="c-page__nav__next" href="/summary/nmt/00-background/02-variational-auto-encoder">
-      Variational Auto Encoder <span class="u-margin-right-tiny"></span> 〉
-    </a>
   
 </nav>
 

@@ -20,10 +20,10 @@
   <title>GANs</title>
   <meta name="description" content="Generative Adversarial Networks(GANs)">
 
-  <link rel="canonical" href="https://thammegowda.github.io/summary/nmt/00-background/03-GANs.html">
+  <link rel="canonical" href="https://thammegowda.github.io/summary/nmt/00-background/03-gans.html">
   <link rel="alternate" type="application/rss+xml" title="Research Summaries" href="https://thammegowda.github.io/summary/nmt/feed.xml">
 
-  <meta property="og:url"         content="https://thammegowda.github.io/summary/nmt/00-background/03-GANs.html" />
+  <meta property="og:url"         content="https://thammegowda.github.io/summary/nmt/00-background/03-gans.html" />
 <meta property="og:type"        content="article" />
 <meta property="og:title"       content="GANs" />
 <meta property="og:description" content="Generative Adversarial Networks(GANs)" />
@@ -35,13 +35,13 @@
   "@context": "http://schema.org",
   "@type": "NewsArticle",
   "mainEntityOfPage":
-    "https://thammegowda.github.io/summary/nmt/00-background/03-GANs.html",
+    "https://thammegowda.github.io/summary/nmt/00-background/03-gans.html",
   "headline":
     "GANs",
   "datePublished":
-    "2019-06-11T18:27:04-07:00",
+    "2019-06-11T18:42:50-07:00",
   "dateModified":
-    "2019-06-11T18:27:04-07:00",
+    "2019-06-11T18:42:50-07:00",
   "description":
     "Generative Adversarial Networks(GANs)",
   "author": {
@@ -817,7 +817,7 @@ initFunction(initQuery);
 
               <li class="c-sidebar__section">
                 <a class="c-sidebar__entry c-sidebar__entry--active"
-                  href="/summary/nmt/00-background/03-GANs.html"
+                  href="/summary/nmt/00-background/03-gans.html"
                 >
                   
                     1.2
@@ -944,7 +944,7 @@ initFunction(initQuery);
   <li>That random distribution is a multivariate gaussian with zero mean and unit variance.</li>
 </ol>
 
-<p>The role of an encoder in the variational autoencoder is to convert any input $x$ into some point in the space of $\mathcal{N}(0, I)$. In other words, if we have a sample set of examples (images, text), each of them can be deterministically mapped (using an encoder) to a point in the space $\mathcal{N}(0, I)$. 
+<p>The role of an encoder in the variational autoencoder is to convert any input $x$ into some point in the space of $\mathcal{N}(0, I)$. In other words, if we have a sample set of examples (images, text), each of them can be deterministically mapped (using an encoder) to a point in the space $\mathcal{N}(0, I)$.
 We have one unique point for each example in our finite dataset.
 However, there are inifinite number of points in $\mathcal{N}(0, I)$, there fore we could in theory generate infinite number of examples using the $Dec\psi(z)$ where $z$ is a sample from $\mathcal{N}(0, I)$.</p>
 

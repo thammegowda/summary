@@ -38,7 +38,7 @@
   - title: Variational Auto Encoder
     url: /00-background/02-variational-auto-encoder
   - title: GANs
-    url: /00-background/03-GANs
+    url: /00-background/03-gans
 
 - title: Supervised MT
   url: /01-sup/01-beginning
