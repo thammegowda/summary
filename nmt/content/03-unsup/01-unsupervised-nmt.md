@@ -2,9 +2,8 @@ Un Supervised NMT
 ===================
 
 Training NMT models without using a single parallel data sounds like a daunting challenge at first - how is it even possible?
-There has been surprising amount of progress made on this challenge recently (2017-2019).
 There were efforts to train Statistical MT systems without using bitext, notably the paper titled [Deciphering foreign language](https://www.aclweb.org/anthology/P11-1002) {% cite ravi2011deciphering %}.
-When it comes to NMT, we see a natural progression of the task: first, learn word translations without any data, followed by a way to take advanatge of them for to sentence translations.
+In NMT, we see a natural progression of the task in step-by-step manner: first, learn word translations without any data, next, use those aligned embeddings to for sentence translations.
 
 Unsupervised Word alignments, done in embedding space, is generally a two step process:
 1. Learn monolingual embeddings seperately
@@ -16,7 +15,7 @@ The second step, learning transformation function for mapping one to another is 
 Progression of learning word embedding alignments:
 1. Using a dictionary of word translations to learn the transformation matrix. [Exploiting Similarities among Languages for Machine Translation](https://arxiv.org/pdf/1309.4168.pdf) {% cite mikolov2013exploiting %}
 2. Much smaller dictionaries: as small as 25 pairs. In many cases those pairs can be automatically obtained, eg: numbers, names etc. See [Learning bilingual word embeddings with (almost) no bilingual data](https://www.aclweb.org/anthology/P17-1042) {% cite artetxe2017binlingemb %}
-3. More fancier techniques for learning word alignments: Use adversarial training. See [Word translation without parallel data](https://arxiv.org/pdf/1710.04087.pdf) {% cite conneau2017word %} .
+3. Fully unsupervised using more advanced techniques for word alignments: Using adversarial training. See [Word translation without parallel data](https://arxiv.org/pdf/1710.04087.pdf) {% cite conneau2017word %} .
 
 The implementation of {% cite conneau2017word %} 's approch is made available on github as [facebookresearch/MUSE](https://github.com/facebookresearch/MUSE) and it is more popular. These unsupervised approaches can sometimes perform better than supervised approach. Here is a visual interepretation of embedding alignment (taken from their github repo): ![](https://github.com/facebookresearch/MUSE/raw/master/outline_all.png)
 
@@ -26,7 +25,7 @@ In summary, unsupervised word alignments exploited these two phenomenons:
 1. Words having similar meaning appear in similar context across languages
 2. There is a linear mapping from one embedding vector space to another which can be easily learned
 
-Once we had these automatically aligned word embeddings of good enough quality, the next problem to tackle was: "how to do sentence translation without parallel data?"
+After having the automatically aligned word embeddings of good enough quality, the next problem to tackle was: "how to do sentence translation without parallel data?"
 
 
 ### 1. [Unsupervised neural machine translation](https://arxiv.org/pdf/1710.11041.pdf) {% cite artetxe2017unsupervised%}
@@ -34,7 +33,7 @@ Once we had these automatically aligned word embeddings of good enough quality, 
 + Crosslingual embeddings: Skipgram word2vec, 10 neg sample, 10 ctx window, 300 dims. Then aligned using {% cite artetxe2017binlingemb %}
 + NMT Architecture: 2 layer Bi-GRU encoder, 2 layers GRU dec, 600 hid dim, 300 dim embs, general attention
   + Both directions: Source -> Target and Target -> Source
-  + Shared encoder for both source and target, decoders are seperate. Encoder embeddings are fixed. Decoders are let to evolve.
+  + Shared encoder for both source and target, decoders are seperate. Encoder embeddings are fixed (pretrained, aligned). Decoders are let to evolve.
   + Vocabularies are separate for both languages. So embedding matrices are seperate (but aligned)
 + Denoising: for a seq of $N$ toks, $N/2$ swaps are performed as nimitation of oise. Without noise, copy task is too trivial, AEs doesnt learn any useful representation.
 + On-the-fly back translation: they use the model to generate translation (in the inference mode with greedy dec) then reconstruct from the translation. Backtranslation is much noisier form than random word swaps.
@@ -50,27 +49,28 @@ Once we had these automatically aligned word embeddings of good enough quality, 
 * Denoising auto encoder, reconstruct from a noisy input
 * (This paper has good citations to relevant work; semi supervised, autoencoder etc)
 
-* LSTM with 300 dims, 3 layers. Two models: Src-to-tgt and tgt-to-src models: all encoder layers are shared, all decoder layers are shared. So only generator matrix is different for both the languages. They actually have two models, LSTM layers are shared.
+* LSTM with 300 dims, 3 layers. Two models: Src-to-tgt and tgt-to-src models: all encoder layers are shared, all decoder layers are shared. I assume embeddings are frozen (pretrained, algined). So only the generator matrix is different for both the languages (they are not tied to input embeddings unlike the recent trend). They actually have two models, but LSTM layers are shared.
 * Denoising auto encoders: drop words, shuffle the order of tokens (upper bound k on how many timesteps max a token can move). They found 10% word drop and k=3 be good parameters
 * Cross-domain loss (aka cycle loss) x -> C(x) -> y -> C(y) -> x'.     C is corruption operator. Similarly, y -> C(y) -> x -> C(x) -> y'.
 * Adversarial training: Encoding of x and y sentences should be indistinguishable
 * Final objective is: is linear combination of following
   * AE src->src
   * AE tgt->tgt
-  * CycleLoss src->tgt->src
-  * CycleLoss tgt->src->src
+  * Cross Domain aka CycleLoss src->tgt->src
+  * Cross Domain aka CycleLoss tgt->src->src
   * Adversarial Loss
+* Note: for the first epoch, the Cross Domain uses word-by-word translation using MUSE; then later they switch to the model itself as backtranslation
 * Results On WMT fr-en 14.3 while supervised is 26.1; de-en is 13.3 while supervvised is 25.6
 
 
 ### 3. [Unsupervised neural machine translation with weight sharing](https://arxiv.org/pdf/1804.09057.pdf) {% cite yang2018unsupervised %}
 
-+ Artetxe et al 2017 use a shared encoder; but seperate decoders. Lample et al 2017 share a single encoder and single decoder (fully shared).
++ {% cite artetxe2017unsupervised%} use a shared encoder; but seperate decoders. {% cite lample2017unsupervised %} share a single encoder and single decoder (fully shared).
 + Conjecture: Fully shared is not  good, since languages have different syntax; completely different is also not good, since forcing common latent space is hard. We want to something in the middle: partial sharing.
 + Encoder: share the higher layers; allow the lower layers (close to embeddings) to be different
 + Decoder share the lower layers; allow the higher layers (close to generator module) to be different
   + Question: Decoder too has input embedding too just like encoder, but they are okay shared? Maybe: since word embeddings are in common latent space
-+ Two kinds of adversarial discriminators are built in:
++ Two kinds of adversarial discriminators were built in:
   + Prior work (Yang et all 2017, same first author): "Improving Neural Machine Translation with Conditional Sequence Generative Adversarial Nets"
   + Loss is modified to include regular loss + GAN reward
   + Two Discriminators: Local (encoded repr of source & target are indistinguishable), Global (model generated sentences are indistinguishable from human generated sentences)
@@ -88,17 +88,21 @@ Once we had these automatically aligned word embeddings of good enough quality, 
   + Shared Encoder, forced interlingua using adversarial loss. Shared Decoder too for regularization
   + BOS (first token) of the shared decoder is the language id token. Encoder's first token is not modified unlike Johnson et al 2016.
   + Loss is Denoising reconstruction + backtranslation loss ; Note: No adversarial loss ? Maybe bcoz the encoder is shared, no need to explicitly force it to learn interlingua
-+  NOTE: authors never explicitly mentioned that the weights of 3 out of 4 layers were shared as suggested by Yang et al 2018 (see above). However in the code it is done. Code didn’t run our cluster and authors said to use XLM instead which is much better (see below) (Lample & Artetxe, 2019)
++  NOTE:  the weights of 3 out of 4 layers were shared as suggested by Yang et al 2018 (see above) (as seen in code, not clear from the paper).
 + Validation and model selection via roundtrip BLEU ( x -> y -> x;  y-> x->y).
 + Note: Roundtrip BLEU correlates well for transformer but not for LSTMs, nobody knows why! They used a small validation set of 100 parallel sentences for LSTMs validation
 
 ### [Cross-lingual Language Model Pretraining](https://arxiv.org/pdf/1901.07291.pdf) {% cite DBLP:journals/corr/abs-1901-07291 %}
 + Code is made available on gitub at [facebookresearch/XLM](https://github.com/facebookresearch/XLM) . (Very well written!)
 + Improvements over lample et al 2018; better initialization
-+ Instead of  initializing (just) embeddings they train auto encoders with different objectives: causal LM (predict next token given left context); masked LM predict some masked token in sequence given both left and right context
-+ If you have parallel data, you can do Translation LM; concat src + tgt sequence, mask out some sequences on both source and target! Nice!! (we should try this way of training transformer model)
-+ Mix all the languages; adjust sampling to balance low and high resources
-+ Denoising AE and online backtranslation are still the key
++ Instead of  initializing (just) embeddings they train language models encoders with different objectives: causal LM (predict next token given left context); masked LM predict some masked token in sequence given both left and right context
++ If parallel data is available, it can be used to do Translation LM; concat src + tgt sequence, mask out some sequences on both source and target. Nice!! 
++ When training Language Models: Mix all the languages; adjust sampling to balance low and high resources
++ Unlike earlier works which only used embeddings for auto encoders; this model initialized encoder and decoder layers from Cross Lingual Language model(XLM). 
+ + XLM is a BERT like transformer model trained using Masked LM. Embeddings are sum of word emb, postional emb, language embeddings
+ + Embeddings, Encoder layers, Generation Matrix weghts are all compatible from XML  to NMT's encoder
+ + Decoder gets most of the weights; misses source-attention weights from XLM,  but thats okay!
++ Denoising AE and online backtranslation are still the key components
 + High BLEU scores comparable with supervised MT (going to try this)
 + Computationally expensive: Language models are way expensive (they needed 64 top of the class GPUs), MT finetuning is relatively inexpensive however still expensive (they needed 8 GPUs)
 

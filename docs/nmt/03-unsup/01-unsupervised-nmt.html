@@ -39,9 +39,9 @@
   "headline":
     "Un-Supervised MT",
   "datePublished":
-    "2019-06-11T18:42:50-07:00",
+    "2019-06-13T14:48:52-07:00",
   "dateModified":
-    "2019-06-11T18:42:50-07:00",
+    "2019-06-13T14:48:52-07:00",
   "description":
     "Un Supervised NMT",
   "author": {
@@ -737,27 +737,6 @@ initFunction(initQuery);
         
       
       
-
-      
-      
-
-      
-      
-      <li class="c-sidebar__chapter">
-        <a class="c-sidebar__entry "
-          href="https://github.com/thammegowda/summary"
-        >
-          
-          GitHub repository
-        </a>
-
-        
-      </li>
-
-      
-    
-      
-      
         <li class="c-sidebar__divider"></li>
         
       
@@ -939,9 +918,8 @@ initFunction(initQuery);
               <h1 id="un-supervised-nmt">Un Supervised NMT</h1>
 
 <p>Training NMT models without using a single parallel data sounds like a daunting challenge at first - how is it even possible?
-There has been surprising amount of progress made on this challenge recently (2017-2019).
 There were efforts to train Statistical MT systems without using bitext, notably the paper titled <a href="https://www.aclweb.org/anthology/P11-1002">Deciphering foreign language</a> <a href="#ravi2011deciphering">(Ravi &amp; Knight, 2011)</a>.
-When it comes to NMT, we see a natural progression of the task: first, learn word translations without any data, followed by a way to take advanatge of them for to sentence translations.</p>
+In NMT, we see a natural progression of the task in step-by-step manner: first, learn word translations without any data, next, use those aligned embeddings to for sentence translations.</p>
 
 <p>Unsupervised Word alignments, done in embedding space, is generally a two step process:</p>
 <ol>
@@ -956,7 +934,7 @@ The second step, learning transformation function for mapping one to another is 
 <ol>
   <li>Using a dictionary of word translations to learn the transformation matrix. <a href="https://arxiv.org/pdf/1309.4168.pdf">Exploiting Similarities among Languages for Machine Translation</a> <a href="#mikolov2013exploiting">(Mikolov, Le, &amp; Sutskever, 2013)</a></li>
   <li>Much smaller dictionaries: as small as 25 pairs. In many cases those pairs can be automatically obtained, eg: numbers, names etc. See <a href="https://www.aclweb.org/anthology/P17-1042">Learning bilingual word embeddings with (almost) no bilingual data</a> <a href="#artetxe2017binlingemb">(Artetxe, Labaka, &amp; Agirre, 2017)</a></li>
-  <li>More fancier techniques for learning word alignments: Use adversarial training. See <a href="https://arxiv.org/pdf/1710.04087.pdf">Word translation without parallel data</a> <a href="#conneau2017word">(Conneau, Lample, Ranzato, Denoyer, &amp; Jégou, 2017)</a> .</li>
+  <li>Fully unsupervised using more advanced techniques for word alignments: Using adversarial training. See <a href="https://arxiv.org/pdf/1710.04087.pdf">Word translation without parallel data</a> <a href="#conneau2017word">(Conneau, Lample, Ranzato, Denoyer, &amp; Jégou, 2017)</a> .</li>
 </ol>
 
 <p>The implementation of <a href="#conneau2017word">(Conneau, Lample, Ranzato, Denoyer, &amp; Jégou, 2017)</a> ‘s approch is made available on github as <a href="https://github.com/facebookresearch/MUSE">facebookresearch/MUSE</a> and it is more popular. These unsupervised approaches can sometimes perform better than supervised approach. Here is a visual interepretation of embedding alignment (taken from their github repo): <img src="https://github.com/facebookresearch/MUSE/raw/master/outline_all.png" alt="" /></p>
@@ -967,7 +945,7 @@ The second step, learning transformation function for mapping one to another is 
   <li>There is a linear mapping from one embedding vector space to another which can be easily learned</li>
 </ol>
 
-<p>Once we had these automatically aligned word embeddings of good enough quality, the next problem to tackle was: “how to do sentence translation without parallel data?”</p>
+<p>After having the automatically aligned word embeddings of good enough quality, the next problem to tackle was: “how to do sentence translation without parallel data?”</p>
 
 <h3 id="1-unsupervised-neural-machine-translation-artetxe-labaka-agirre--cho-2017">1. <a href="https://arxiv.org/pdf/1710.11041.pdf">Unsupervised neural machine translation</a> <a href="#artetxe2017unsupervised">(Artetxe, Labaka, Agirre, &amp; Cho, 2017)</a></h3>
 
@@ -976,7 +954,7 @@ The second step, learning transformation function for mapping one to another is 
   <li>NMT Architecture: 2 layer Bi-GRU encoder, 2 layers GRU dec, 600 hid dim, 300 dim embs, general attention
     <ul>
       <li>Both directions: Source -&gt; Target and Target -&gt; Source</li>
-      <li>Shared encoder for both source and target, decoders are seperate. Encoder embeddings are fixed. Decoders are let to evolve.</li>
+      <li>Shared encoder for both source and target, decoders are seperate. Encoder embeddings are fixed (pretrained, aligned). Decoders are let to evolve.</li>
       <li>Vocabularies are separate for both languages. So embedding matrices are seperate (but aligned)</li>
     </ul>
   </li>
@@ -997,7 +975,7 @@ The second step, learning transformation function for mapping one to another is 
   <li>
     <p>(This paper has good citations to relevant work; semi supervised, autoencoder etc)</p>
   </li>
-  <li>LSTM with 300 dims, 3 layers. Two models: Src-to-tgt and tgt-to-src models: all encoder layers are shared, all decoder layers are shared. So only generator matrix is different for both the languages. They actually have two models, LSTM layers are shared.</li>
+  <li>LSTM with 300 dims, 3 layers. Two models: Src-to-tgt and tgt-to-src models: all encoder layers are shared, all decoder layers are shared. I assume embeddings are frozen (pretrained, algined). So only the generator matrix is different for both the languages (they are not tied to input embeddings unlike the recent trend). They actually have two models, but LSTM layers are shared.</li>
   <li>Denoising auto encoders: drop words, shuffle the order of tokens (upper bound k on how many timesteps max a token can move). They found 10% word drop and k=3 be good parameters</li>
   <li>Cross-domain loss (aka cycle loss) x -&gt; C(x) -&gt; y -&gt; C(y) -&gt; x’.     C is corruption operator. Similarly, y -&gt; C(y) -&gt; x -&gt; C(x) -&gt; y’.</li>
   <li>Adversarial training: Encoding of x and y sentences should be indistinguishable</li>
@@ -1005,18 +983,19 @@ The second step, learning transformation function for mapping one to another is 
     <ul>
       <li>AE src-&gt;src</li>
       <li>AE tgt-&gt;tgt</li>
-      <li>CycleLoss src-&gt;tgt-&gt;src</li>
-      <li>CycleLoss tgt-&gt;src-&gt;src</li>
+      <li>Cross Domain aka CycleLoss src-&gt;tgt-&gt;src</li>
+      <li>Cross Domain aka CycleLoss tgt-&gt;src-&gt;src</li>
       <li>Adversarial Loss</li>
     </ul>
   </li>
+  <li>Note: for the first epoch, the Cross Domain uses word-by-word translation using MUSE; then later they switch to the model itself as backtranslation</li>
   <li>Results On WMT fr-en 14.3 while supervised is 26.1; de-en is 13.3 while supervvised is 25.6</li>
 </ul>
 
 <h3 id="3-unsupervised-neural-machine-translation-with-weight-sharing-yang-chen-wang--xu-2018">3. <a href="https://arxiv.org/pdf/1804.09057.pdf">Unsupervised neural machine translation with weight sharing</a> <a href="#yang2018unsupervised">(Yang, Chen, Wang, &amp; Xu, 2018)</a></h3>
 
 <ul>
-  <li>Artetxe et al 2017 use a shared encoder; but seperate decoders. Lample et al 2017 share a single encoder and single decoder (fully shared).</li>
+  <li><a href="#artetxe2017unsupervised">(Artetxe, Labaka, Agirre, &amp; Cho, 2017)</a> use a shared encoder; but seperate decoders. <a href="#lample2017unsupervised">(Lample, Conneau, Denoyer, &amp; Ranzato, 2017)</a> share a single encoder and single decoder (fully shared).</li>
   <li>Conjecture: Fully shared is not  good, since languages have different syntax; completely different is also not good, since forcing common latent space is hard. We want to something in the middle: partial sharing.</li>
   <li>Encoder: share the higher layers; allow the lower layers (close to embeddings) to be different</li>
   <li>Decoder share the lower layers; allow the higher layers (close to generator module) to be different
@@ -1024,7 +1003,7 @@ The second step, learning transformation function for mapping one to another is 
       <li>Question: Decoder too has input embedding too just like encoder, but they are okay shared? Maybe: since word embeddings are in common latent space</li>
     </ul>
   </li>
-  <li>Two kinds of adversarial discriminators are built in:
+  <li>Two kinds of adversarial discriminators were built in:
     <ul>
       <li>Prior work (Yang et all 2017, same first author): “Improving Neural Machine Translation with Conditional Sequence Generative Adversarial Nets”</li>
       <li>Loss is modified to include regular loss + GAN reward</li>
@@ -1053,7 +1032,7 @@ The second step, learning transformation function for mapping one to another is 
       <li>Loss is Denoising reconstruction + backtranslation loss ; Note: No adversarial loss ? Maybe bcoz the encoder is shared, no need to explicitly force it to learn interlingua</li>
     </ul>
   </li>
-  <li>NOTE: authors never explicitly mentioned that the weights of 3 out of 4 layers were shared as suggested by Yang et al 2018 (see above). However in the code it is done. Code didn’t run our cluster and authors said to use XLM instead which is much better (see below) (Lample &amp; Artetxe, 2019)</li>
+  <li>NOTE:  the weights of 3 out of 4 layers were shared as suggested by Yang et al 2018 (see above) (as seen in code, not clear from the paper).</li>
   <li>Validation and model selection via roundtrip BLEU ( x -&gt; y -&gt; x;  y-&gt; x-&gt;y).</li>
   <li>Note: Roundtrip BLEU correlates well for transformer but not for LSTMs, nobody knows why! They used a small validation set of 100 parallel sentences for LSTMs validation</li>
 </ul>
@@ -1062,10 +1041,14 @@ The second step, learning transformation function for mapping one to another is 
 <ul>
   <li>Code is made available on gitub at <a href="https://github.com/facebookresearch/XLM">facebookresearch/XLM</a> . (Very well written!)</li>
   <li>Improvements over lample et al 2018; better initialization</li>
-  <li>Instead of  initializing (just) embeddings they train auto encoders with different objectives: causal LM (predict next token given left context); masked LM predict some masked token in sequence given both left and right context</li>
-  <li>If you have parallel data, you can do Translation LM; concat src + tgt sequence, mask out some sequences on both source and target! Nice!! (we should try this way of training transformer model)</li>
-  <li>Mix all the languages; adjust sampling to balance low and high resources</li>
-  <li>Denoising AE and online backtranslation are still the key</li>
+  <li>Instead of  initializing (just) embeddings they train language models encoders with different objectives: causal LM (predict next token given left context); masked LM predict some masked token in sequence given both left and right context</li>
+  <li>If parallel data is available, it can be used to do Translation LM; concat src + tgt sequence, mask out some sequences on both source and target. Nice!!</li>
+  <li>When training Language Models: Mix all the languages; adjust sampling to balance low and high resources</li>
+  <li>Unlike earlier works which only used embeddings for auto encoders; this model initialized encoder and decoder layers from Cross Lingual Language model(XLM).</li>
+  <li>XLM is a BERT like transformer model trained using Masked LM. Embeddings are sum of word emb, postional emb, language embeddings</li>
+  <li>Embeddings, Encoder layers, Generation Matrix weghts are all compatible from XML  to NMT’s encoder</li>
+  <li>Decoder gets most of the weights; misses source-attention weights from XLM,  but thats okay!</li>
+  <li>Denoising AE and online backtranslation are still the key components</li>
   <li>High BLEU scores comparable with supervised MT (going to try this)</li>
   <li>Computationally expensive: Language models are way expensive (they needed 64 top of the class GPUs), MT finetuning is relatively inexpensive however still expensive (they needed 8 GPUs)</li>
 </ul>

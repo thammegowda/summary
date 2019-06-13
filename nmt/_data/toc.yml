@@ -24,11 +24,6 @@
 - title: Search
   search: true
 
-- title: GitHub repository
-  url: https://github.com/thammegowda/summary
-  external: true
-  not_numbered: true
-
 - divider: true
 - header: Neural Machine Translation
 

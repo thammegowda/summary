@@ -1,7 +1,7 @@
 Background
 ==========
 
-**Auto Encoder** learns representations by the technique of compression (aka dim reduction) folled by decompression.
+**Auto Encoder** learns representations by the technique of compression (aka dim reduction) followed by decompression.
 The compact representation is often called "code".
 For an high demnsiomal data $X$, we define encoder as a parameterized function
 $Enc_\phi : X \rightarrow F$  
